@@ -1,0 +1,11 @@
+{application, quickrel,
+ [
+  {description, "Quickrel"},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
