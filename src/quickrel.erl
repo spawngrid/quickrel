@@ -1,11 +1,26 @@
 -module(quickrel).
--export([build/2]).
+-export([quickrel/2]).
 -include_lib("kernel/include/file.hrl").
+
+quickrel(_Config, ReltoolFile) ->
+ {ok, Terms} = file:consult(ReltoolFile),
+ case Terms of 
+  [{application, _, _}] ->
+    ok;
+  _ ->
+    {ok, Cwd} = file:get_cwd(),
+    Dir = proplists:get_value(target_dir, Terms, Cwd),
+    build(ReltoolFile, Dir)
+ end.
+
+%% internal
 
 build(Reltool, Path0) ->
    Path = filename:absname(Path0),
    {ok, ReltoolConfig0} = file:consult(Reltool),
    {sys, RelProps} = ReltoolConfig = {sys, proplists:get_value(sys, ReltoolConfig0)},
+   LibDirs = proplists:get_value(lib_dirs, RelProps, []),
+   code:add_pathsa(lists:concat([ filelib:wildcard(filename:join([LibDir, "*", "ebin"])) || LibDir <- LibDirs ])),
    BootRel = proplists:get_value(boot_rel, RelProps),
    {ok, Cwd} = file:get_cwd(),
    file:set_cwd(filename:dirname(Reltool)),
@@ -44,9 +59,6 @@ build(Reltool, Path0) ->
 
    %% 
    ok.
-
-
- %% internal
 
  process_dep(Path, {Name, Version}) ->
    LibDir = code:lib_dir(Name),
