@@ -27,13 +27,18 @@ build(Reltool, Path0) ->
    %%
    filelib:ensure_dir(filename:join([Path, "lib"]) ++ "/"),
    {ok, RelSrv} = reltool:start_server([{config, ReltoolConfig}]),
+   rebar_log:log(info, "Generating release...~n", []),
    {ok, Rel} = reltool:get_rel(RelSrv, BootRel),
+   rebar_log:log(info, "Generating boot script...~n", []),
    {ok, Script} = reltool:get_script(RelSrv, BootRel),
    
    {release, {BootRel, _RelVer}, _Erts, Deps} = Rel,
    file:set_cwd(Cwd),
 
+   rebar_log:log(info, "Linking libraries...~n", []),
    [ process_dep(filename:join([Path, "lib"]), Dep) || Dep <- Deps ],
+
+   rebar_log:log(info, "Serializing boot & start scripts...~n", []),
 
    ScriptFile = filename:join([Path, BootRel ++ ".script"]),
    file:write_file(ScriptFile, io_lib:format("~p.~n",[Script])),
@@ -56,7 +61,7 @@ build(Reltool, Path0) ->
                     filename:join([Path, BootRel])])),
    {ok, FI} = file:read_file_info(filename:join([Path, "start"])),
    file:write_file_info(filename:join([Path, "start"]), FI#file_info{ mode = FI#file_info.mode bor 8#00110 }),  
-
+ 
    %% 
    ok.
 
