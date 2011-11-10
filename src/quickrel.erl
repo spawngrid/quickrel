@@ -74,4 +74,6 @@ build(Reltool, Path0) ->
 		 {error, eexist} -> ok
 	 end;
  process_dep(Path, {Name, Version, _}) ->
-   process_dep(Path, {Name, Version}).
+   process_dep(Path, {Name, Version});
+ process_dep(Path, {Name, Version, _, _}) ->
+	 process_dep(Path, {Name, Version}).
