@@ -3,14 +3,16 @@
 -include_lib("kernel/include/file.hrl").
 
 quickrel(_Config, ReltoolFile) ->
- {ok, Terms} = file:consult(ReltoolFile),
- case Terms of 
-  [{application, _, _}] ->
+ R = file:consult(ReltoolFile),
+ case R of
+	 {ok, [{application, _, _}]} ->
     ok;
-  _ ->
+	 {ok, Terms} ->
     {ok, Cwd} = file:get_cwd(),
     Dir = proplists:get_value(target_dir, Terms, Cwd),
-    build(ReltoolFile, Dir)
+    build(ReltoolFile, Dir);
+	 _ ->
+		 ok
  end.
 
 %% internal
