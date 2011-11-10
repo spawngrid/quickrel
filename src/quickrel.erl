@@ -69,6 +69,9 @@ build(Reltool, Path0) ->
 
  process_dep(Path, {Name, Version}) ->
    LibDir = code:lib_dir(Name),
-   ok = file:make_symlink(filename:absname(LibDir), filename:join([Path, atom_to_list(Name) ++ "-" ++ Version]));
+   case file:make_symlink(filename:absname(LibDir), filename:join([Path, atom_to_list(Name) ++ "-" ++ Version])) of
+		 ok -> ok;
+		 {error, eexist} -> ok
+	 end;
  process_dep(Path, {Name, Version, _}) ->
    process_dep(Path, {Name, Version}).
